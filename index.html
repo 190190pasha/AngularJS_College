@@ -141,7 +141,7 @@
 							
 							$http.post('addStudent.php',
 								{
-									id: _self.selGroup.id,
+									idGroup: _self.selGroup.id,
 									stud: student
 								})
 								.success(function(data) {
@@ -165,21 +165,32 @@
 						
 					};
 				
-				this.deleteStudent = function(idGroup, idStud) {
-						
+				this.deleteStudent = function(idGroup, iStud) {
+				
 						for(var i = 0; i < this.list.length; i++) {
+						
+							if ("undefined" !== iStud && _self.list[i].id === idGroup) {
 							
-							if (this.list[i].id === idGroup && "undefined" !== idStud) {
-								
-								this.list[i].students.splice(idStud, 1);
-								
-								return true;
+								$http.post('deleteStudent.php',
+									{
+										idGroup: idGroup,
+										iStud: iStud
+									})
+									.success(function(data) {
+											
+											_self.list[i].students.splice(iStud, 1);
+										})
+									.error(function(err) {
+											
+											alert(err);
+										});
+										
+								break;
 								
 							}
 							
 						}
 						
-						return false;
 					};
 				
 			});

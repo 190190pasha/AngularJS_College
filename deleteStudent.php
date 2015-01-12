@@ -5,7 +5,7 @@
 	$data = json_decode(file_get_contents("php://input"));
 	
 	$id_group = $data->idGroup;
-	$stud = $data->stud;
+	$iStud = $data->iStud;
 	
 	$_dataStr_ = file_get_contents(DATA_FILE);
 	
@@ -15,7 +15,7 @@
 	
 		if ($id_group === $groups[$i]['id']) {
 			
-			$groups[$i]['students'][] = (array) $stud;
+			unset($groups[$i]['students'][$iStud]);
 			
 			file_put_contents(DATA_FILE, json_encode($groups));
 			
