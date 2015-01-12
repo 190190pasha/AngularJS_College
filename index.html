@@ -29,7 +29,6 @@
 				</li>
 				<li><a href ng-click="groupsCtrl.setViewMode(null, 'A')">+</a></li>
 			</ol>
-			<!-- <h2>{{studentCtrl.firstName}}</h2> -->
 			<div ng-show="groupsCtrl.viewMode == 'A' || groupsCtrl.viewMode == 'E'">
 				<form ng-controller="StudentController as studentCtrl" ng-submit="groupsCtrl.postStudent(studentCtrl.getStudent())" novalidate>
 					<table border="1">
@@ -51,11 +50,6 @@
 					</table>
 				</form>
 			</div>
-			<!--
-			<div ng-controller="StudentController as studentCtrl">
-				<h3>Student: {{studentCtrl.self.firstName}} {{studentCtrl.self.lastName}} {{studentCtrl.self.patronymic}} {{studentCtrl.self.age}}</h3>
-			</div>
-			-->
 		</section>
 	</section>
 	<script>
@@ -97,9 +91,8 @@
 			});
 		
 		app.controller("GroupsController", function($http, studentService) {
-				
+		
 				this.selGroup = '';
-				
 				this.selStudIdx = -1;
 				
 				this.viewMode = '';
@@ -146,12 +139,30 @@
 						}
 						else{
 							
-							this.selGroup.students.push(student);
+							$http.post('addStudent.php',
+								{
+									id: _self.selGroup.id,
+									stud: student
+								})
+								.success(function(data) {
+								
+										_self.selGroup.students.push(student);
+										
+										this.viewMode = '';
+										
+										studentService.setStudent( studentService.getStudentDefault() );
+										
+									})
+								.error(function(err) {
+								
+										alert(err);
+									});
 						}
 						
 						studentService.setStudent( studentService.getStudentDefault() );
 						
 						this.viewMode = '';
+						
 					};
 				
 				this.deleteStudent = function(idGroup, idStud) {
