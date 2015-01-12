@@ -96,7 +96,7 @@
 				
 			});
 		
-		app.controller("GroupsController", function(studentService) {
+		app.controller("GroupsController", function($http, studentService) {
 				
 				this.selGroup = '';
 				
@@ -104,56 +104,22 @@
 				
 				this.viewMode = '';
 				
-				this.list = [
-						{
-							id: '405POIT',
-							speciality: "Software Inforamtion Technology",
-							graduation: 'technician programmer',
-							name: "405",
-							curator: "Kaziachaya Lyudmila Leonidauna",
-							students: [
-								{
-									firstName: 'Pavel',
-									lastName: "Barkovskiy",
-									patronymic: 'Anatolevich',
-									age: 24
-								},
-								{
-									firstName: 'Alexander',
-									lastName: "Dylevskiy",
-									patronymic: 'Alexandrovich',
-									age: 25
-								},
-								{
-									firstName: 'Alexey',
-									lastName: "Homich",
-									patronymic: 'Vladzimirovich',
-									age: 25
-								}
-							]
-						},
-						{
-							id: '409POIT',
-							speciality: "Software Inforamtion Technology",
-							graduation: 'technician programmer',
-							name: "409",
-							curator: "Putyrskaya Zoya Uladzimirauna",
-							students: [
-								{
-									firstName: 'Pavel',
-									lastName: "Shapel",
-									patronymic: 'Vladzimirovich',
-									age: 26
-								},
-								{
-									firstName: 'Natalia',
-									lastName: "Ryaboshapko",
-									patronymic: 'Alexandrovna',
-									age: 25
-								}
-							]
-						}
-					];
+				this.list = [];
+				
+				var _self = this;
+				
+				$http( {
+						async: false,
+						url: 'data/groups.json'
+					})
+					.success(function(data) {
+					
+							angular.extend(_self.list,data);
+						})
+					.error(function(err) {
+					
+							alert(err);
+						});
 				
 				this.setViewMode = function(iStud, mode) {
 						
@@ -175,11 +141,11 @@
 				this.postStudent = function(student) {
 						
 						if (this.viewMode == 'E') {
-						
+							
 							angular.extend(this.selGroup.students[this.selStudIdx], student);
 						}
 						else{
-						
+							
 							this.selGroup.students.push(student);
 						}
 						
