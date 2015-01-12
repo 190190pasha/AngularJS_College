@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html ng-app="CollegeApp">
+<head>
+	<meta charset="UTF-8">
+	<title>Test</title>
+	<script type="text/javascript" src="./js/angular.min.js"></script>
+</head>
+<body>
+	<header>
+		<h3 style="color:blue; opacity: 0.83;">College App&copy;</h3>
+	</header>
+	<section ng-controller="GroupsController as groupsCtrl">
+		<p>
+			Please, Select a Group for work:
+			<select ng-model="groupsCtrl.selGroup" ng-options="group.id for group in groupsCtrl.list">
+				<option value="">->Select Group<-</option>
+			</select>
+		</p>
+		<section>
+			<span ng-show="groupsCtrl.selGroup" style="display: block;">Speciality: {{groupsCtrl.selGroup.speciality}}</span>
+			<span ng-show="groupsCtrl.selGroup">Group#: {{groupsCtrl.selGroup.name}}</span>
+			<span ng-show="groupsCtrl.selGroup">Curator: {{groupsCtrl.selGroup.curator}}</span>
+		</section>
+		<section ng-show="groupsCtrl.selGroup">
+			<ol>
+				<li ng-repeat="student in groupsCtrl.selGroup.students track by $index">
+					{{student.lastName}} {{student.firstName[0].toUpperCase() + '.'}}{{student.patronymic[0].toUpperCase() + '.'}}
+					<a href ng-click="groupsCtrl.deleteStudent(groupsCtrl.selGroup.id, $index)">-</a>&nbsp;<a href ng-click="groupsCtrl.setViewMode($index, 'E')">/</a>
+				</li>
+				<li><a href ng-click="groupsCtrl.setViewMode(null, 'A')">+</a></li>
+			</ol>
+			<!-- <h2>{{studentCtrl.firstName}}</h2> -->
+			<div ng-show="groupsCtrl.viewMode == 'A' || groupsCtrl.viewMode == 'E'">
+				<form ng-controller="StudentController as studentCtrl" ng-submit="groupsCtrl.postStudent(studentCtrl.getStudent())" novalidate>
+					<table border="1">
+						<tr>
+							<td style="text-align:right;" colspan="2"><a href ng-click="groupsCtrl.viewMode = ''">x</a></td>
+						</tr>
+						<tr>
+							<td>First Name:</td><td><input ng-model="studentCtrl.self.firstName" type="text"/></td>
+						</tr>
+						<tr>
+							<td>Last Name:</td><td><input ng-model="studentCtrl.self.lastName" type="text"/></td>
+						</tr>
+						<tr>
+							<td>Patronymic*:</td><td><input ng-model="studentCtrl.self.patronymic" type="text"/></td>
+						</tr>
+						<tr>
+							<td colspan="2"><input type="submit" value="Apply"></td>
+						</tr>
+					</table>
+				</form>
+			</div>
+			<!--
+			<div ng-controller="StudentController as studentCtrl">
+				<h3>Student: {{studentCtrl.self.firstName}} {{studentCtrl.self.lastName}} {{studentCtrl.self.patronymic}} {{studentCtrl.self.age}}</h3>
+			</div>
+			-->
+		</section>
+	</section>
+	<script>
+		var app = angular.module("CollegeApp", []);
+		
+		app.service("studentService", function() {
+				
+				var _default = {
+					firstName: '',
+					lastName: "",
+					patronymic: '',
+					age: 0
+				};
+				
+				this.self = angular.copy( _default );
+				
+				this.setStudent = function(stud) {
+						
+						angular.extend( this.self, stud );
+					};
+				
+				this.getStudent = function() {
+						
+						return this.self;
+					};
+				
+				/*
+				this.setStudentDefault = function() {
+						
+						angular.extend( this.self, _default );
+						
+					};
+				*/
+				this.getStudentDefault = function() {
+						
+						return angular.copy( _default );
+					};
+				
+			});
+		
+		app.controller("GroupsController", function(studentService) {
+				
+				this.selGroup = '';
+				
+				this.selStudIdx = -1;
+				
+				this.viewMode = '';
+				
+				this.list = [
+						{
+							id: '405POIT',
+							speciality: "Software Inforamtion Technology",
+							graduation: 'technician programmer',
+							name: "405",
+							curator: "Kaziachaya Lyudmila Leonidauna",
+							students: [
+								{
+									firstName: 'Pavel',
+									lastName: "Barkovskiy",
+									patronymic: 'Anatolevich',
+									age: 24
+								},
+								{
+									firstName: 'Alexander',
+									lastName: "Dylevskiy",
+									patronymic: 'Alexandrovich',
+									age: 25
+								},
+								{
+									firstName: 'Alexey',
+									lastName: "Homich",
+									patronymic: 'Vladzimirovich',
+									age: 25
+								}
+							]
+						},
+						{
+							id: '409POIT',
+							speciality: "Software Inforamtion Technology",
+							graduation: 'technician programmer',
+							name: "409",
+							curator: "Putyrskaya Zoya Uladzimirauna",
+							students: [
+								{
+									firstName: 'Pavel',
+									lastName: "Shapel",
+									patronymic: 'Vladzimirovich',
+									age: 26
+								},
+								{
+									firstName: 'Natalia',
+									lastName: "Ryaboshapko",
+									patronymic: 'Alexandrovna',
+									age: 25
+								}
+							]
+						}
+					];
+				
+				this.setViewMode = function(iStud, mode) {
+						
+						if (iStud !== null && mode == 'E') {
+							
+							this.selStudIdx = iStud;
+							
+							studentService.setStudent(this.selGroup.students[iStud]);
+							
+						}
+						else
+						{
+							studentService.setStudent( studentService.getStudentDefault() );
+						}
+						
+						this.viewMode = mode;
+					};
+				
+				this.postStudent = function(student) {
+						
+						if (this.viewMode == 'E') {
+						
+							angular.extend(this.selGroup.students[this.selStudIdx], student);
+						}
+						else{
+						
+							this.selGroup.students.push(student);
+						}
+						
+						studentService.setStudent( studentService.getStudentDefault() );
+						
+						this.viewMode = '';
+					};
+				
+				this.deleteStudent = function(idGroup, idStud) {
+						
+						for(var i = 0; i < this.list.length; i++) {
+							
+							if (this.list[i].id === idGroup && "undefined" !== idStud) {
+								
+								this.list[i].students.splice(idStud, 1);
+								
+								return true;
+								
+							}
+							
+						}
+						
+						return false;
+					};
+				
+			});
+		
+		app.controller("StudentController", function(studentService) {
+				
+				this.self = studentService.getStudent();
+				
+				this.getStudent = function() {
+						
+						return angular.copy(this.self);
+					};
+			});
+			
+	</script>
+</body>
+</html>
